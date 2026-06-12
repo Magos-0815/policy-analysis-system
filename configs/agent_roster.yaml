@@ -1,0 +1,24 @@
+version: 0.2
+contract: state_support_intensity_v1
+agents:
+  policy_nlp_analyst:
+    title: Policy NLP Analyst
+    mission: Review policy metadata, support channel classification, and quantifiability labels.
+  industry_mapping_analyst:
+    title: Industry Mapping Analyst
+    mission: Review industry tags, regional tags, entity mappings, and normalization-base choices.
+  channel_quant_analyst:
+    title: Channel Quant Analyst
+    mission: Review SupportObservation channel, amount, directness, coverage, and confidence fields.
+  methodology_analyst:
+    title: Methodology Analyst
+    mission: Review PDF formula consistency, weighting modes, normalization, and double-count rules.
+  evidence_qa_analyst:
+    title: Evidence QA Analyst
+    mission: Check evidence links, duplicated documents, missing fields, low-confidence observations, and gap flags.
+  policy_red_team_reviewer:
+    title: Policy Red Team Reviewer
+    mission: Identify unsupported claims, pseudo-quantification, duplicate support, and Policy Signal misuse.
+  china_policy_director:
+    title: China Policy Director
+    mission: Summarize State Support Intensity movements, benchmark warnings, unresolved gaps, and next implementation priorities.

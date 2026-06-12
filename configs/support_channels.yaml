@@ -1,0 +1,39 @@
+version: 0.2
+contract: state_support_intensity_v1
+channels:
+  direct_subsidy:
+    label: 直接财政补贴
+    kind: quantitative_support
+    keywords: [补贴, 补助, 奖补, 专项资金, 财政资金, 政府补助, 资金支持]
+  r_and_d_tax_incentive:
+    label: R&D 税收优惠
+    kind: quantitative_support
+    keywords: [研发费用加计扣除, 研发税收优惠, 加计扣除, 研发费用, R&D tax]
+  government_financed_berd:
+    label: 政府资助 BERD
+    kind: quantitative_support
+    keywords: [政府资助研发, 企业研发经费, BERD, 科技计划, 技术攻关]
+  other_tax_incentive:
+    label: 其他税收优惠
+    kind: quantitative_support
+    keywords: [税收优惠, 免税, 减税, 退税, 所得税, 增值税, 留抵退税, 税费减免]
+  credit_subsidy:
+    label: 信贷补贴 / SOE 融资优势
+    kind: quantitative_support
+    keywords: [贷款, 再贷款, 贴息, 融资支持, 信贷, 利率, 担保, 政策性金融]
+  guidance_fund:
+    label: 政府引导基金
+    kind: quantitative_support
+    keywords: [引导基金, 产业基金, 政府投资基金, 母基金, 政府出资]
+  land_subsidy:
+    label: 土地和房地产补贴
+    kind: quantitative_support
+    keywords: [土地供应, 用地保障, 工业用地, 协议出让, 土地出让, 地价, 供地]
+  soe_net_payables:
+    label: SOE 净应付款优势
+    kind: quantitative_support
+    keywords: [国有企业, 应付款, 应付账款, 延迟付款, 国企, 融资成本]
+  debt_equity_swap:
+    label: 债转股
+    kind: quantitative_support
+    keywords: [债转股, 市场化债转股, 债务重组, 债务转股权]

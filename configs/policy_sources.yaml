@@ -1,0 +1,145 @@
+version: 0.2
+policy:
+  no_paywall_bypass: true
+  no_login_scraping: true
+  no_unauthorized_database_access: true
+  every_material_claim_needs_document_id: true
+sources:
+  gov_cn_policy:
+    label: 国务院政策文件库
+    tier: P0
+    source_category: official_policy
+    base_url: https://sousuo.www.gov.cn/zcwjk/
+    allowed_domains:
+      - sousuo.www.gov.cn
+      - www.gov.cn
+    refresh_cadence: daily
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - central_policy
+      - evidence_chain
+      - policy_signal_auxiliary
+    seed_keywords:
+      - 补贴
+      - 税收优惠
+      - 研发费用加计扣除
+      - 贴息
+      - 引导基金
+      - 土地供应
+      - 债转股
+      - 集成电路
+      - 软件
+      - 新能源汽车
+      - 生物医药
+    sample_items:
+      - title: 关于做好2026年享受税收优惠政策的集成电路企业或项目、软件企业清单制定工作的通知
+        url: https://www.ndrc.gov.cn/
+        issuer:
+          - 国家发展改革委
+          - 工业和信息化部
+          - 财政部
+          - 税务总局
+        published_at: "2026-04-07"
+        body: 集成电路企业、软件企业可按规定享受税收优惠政策，相关企业清单按年度组织制定。
+  ndrc_policy:
+    label: 发改委政策发布
+    tier: P0
+    source_category: official_policy
+    base_url: https://www.ndrc.gov.cn/xxgk/zcfb/
+    allowed_domains:
+      - www.ndrc.gov.cn
+    refresh_cadence: daily
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - industrial_policy
+      - investment
+      - energy
+      - guidance_fund
+  miit_policy:
+    label: 工信部政策文件
+    tier: P0
+    source_category: official_policy
+    base_url: https://www.miit.gov.cn/zwgk/zcwj/index.html
+    allowed_domains:
+      - www.miit.gov.cn
+    refresh_cadence: daily
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - manufacturing
+      - semiconductor
+      - software
+      - ev
+  mof_policy:
+    label: 财政部政策发布
+    tier: P0
+    source_category: official_policy
+    base_url: https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/
+    allowed_domains:
+      - www.mof.gov.cn
+    refresh_cadence: daily
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - direct_subsidy
+      - budget
+      - tax_policy
+      - government_procurement
+  chinatax_rules:
+    label: 税务总局政策法规库
+    tier: P0
+    source_category: official_policy
+    base_url: https://fgk.chinatax.gov.cn/
+    allowed_domains:
+      - fgk.chinatax.gov.cn
+      - www.chinatax.gov.cn
+    refresh_cadence: daily
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - r_and_d_tax_incentive
+      - other_tax_incentive
+  pbc_rules:
+    label: 人民银行规范性文件
+    tier: P1
+    source_category: official_policy
+    base_url: https://www.pbc.gov.cn/tiaofasi/144941/3581332/index.html
+    allowed_domains:
+      - www.pbc.gov.cn
+    refresh_cadence: weekly
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - credit_subsidy
+      - financial_support
+      - policy_tools
+  landchina:
+    label: 中国土地市场网
+    tier: P1
+    source_category: public_transaction
+    base_url: https://www.landchina.com/
+    allowed_domains:
+      - www.landchina.com
+    refresh_cadence: weekly
+    parser: generic_html
+    access_policy: public_only_no_login
+    topics:
+      - land_subsidy
+      - land_transactions
+  oecd_data:
+    label: OECD Data
+    tier: P1
+    source_category: international_benchmark
+    base_url: https://www.oecd.org/en/data.html
+    allowed_domains:
+      - www.oecd.org
+      - data-explorer.oecd.org
+    refresh_cadence: monthly
+    parser: api_or_download
+    access_policy: public_or_authorized_api_only
+    topics:
+      - r_and_d_tax_incentive
+      - government_financed_berd
+      - benchmark
