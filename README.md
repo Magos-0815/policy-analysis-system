@@ -127,3 +127,4 @@ python3 -m venv .venv
 - `docs/china_policy_index_current_implementation_analysis.md`
 - `docs/china_policy_crawler_and_agent_design.md`
 - `docs/china_policy_index_system_design.md`
+- `docs/高价值附加设计文档.md`
