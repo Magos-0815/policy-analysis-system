@@ -113,6 +113,8 @@ V1 必须内置并测试：
 - `DuckDB + Polars`：`policy_index/ssi_engine/storage.py` 和 `calculator.py` 已负责 observation、聚合结果和快照表。
 - `Pydantic + Pointblank`：`SupportObservation` 行级校验和表级 quality gate 已接入。
 - `Camel-AI`：`CamelReviewEnvelope` 已作为审查和解释层接口，验证器禁止它修改 SSI 数值。
+- `SupportObservationExtractor`：已从真实 HTML 政策正文、分类结果和 `normalization_bases.yaml` 生成 SSI 输入行；缺总金额或缺归一化基数时只输出 gap。
+- `OecdRDTaxBenchmarkClient`：已通过 OECD SDMX CSV 公开 API 拉取中国 R&D tax support / government-financed BERD benchmark，并单独存储，不混入行业 SSI。
 
 ### Phase 0：文档纠偏
 
@@ -156,6 +158,14 @@ V1 必须内置并测试：
 - 每个渠道至少有 observed、estimated、proxy 或 missing 状态。
 - 不允许用政策热度填补金额。
 - 所有抓取输出留存 raw、text、metadata 和 content hash。
+
+当前状态：
+
+- 通用公开 HTML crawler 已实现。
+- OECD benchmark 已真实联网成功。
+- 2026-06-12 本机对 MOF、NDRC、PBC 的 `httpx`/`curl` 访问返回 TLS EOF，HTTP 明文返回 empty reply；因此当前 smoke 未抓到这些站点真实文档。
+- LandChina 首页可访问但通用 parser 未发现详情链接，需要专用 parser。
+- 该阶段尚未完全验收，下一步重点是站点专用 parser、网络重试策略和授权量化源 adapter。
 
 ### Phase 3：SSI 指数引擎
 
@@ -218,6 +228,10 @@ V1 必须新增并通过：
 | export schema test | 验证 snapshot、observation、methodology 导出字段 |
 | runtime isolation test | 验证不写 `/Users/alex/Documents/金融项目` |
 | policy-signal separation test | 验证 `policy_signal` 不参与 SSI 聚合 |
+| public crawler test | 验证公开 HTML 列表到文档 raw/text/metadata 入库 |
+| observation extraction test | 验证真实政策金额、有/无归一化基数、额度上限不进入 SSI |
+| OECD benchmark test | 验证 OECD 公开 CSV 只进入 benchmark，不直接进入 SSI |
+| empty snapshot test | 验证无 observation 时仍稳定导出 warning snapshot |
 
 ## 5. Definition of Done
 

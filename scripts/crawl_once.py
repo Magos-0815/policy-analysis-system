@@ -17,16 +17,15 @@ from policy_index.runtime_guard import assert_policy_project_isolated
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", default="gov_cn_policy")
+    parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--offline-sample", action="store_true", help="Use configured sample items instead of network fetch.")
     args = parser.parse_args()
 
     assert_policy_project_isolated()
-    if not args.offline_sample:
-        print("Only --offline-sample is implemented in the initial scaffold.", file=sys.stderr)
-        return 2
-    result = PolicyCrawler().crawl_offline_sample(args.source)
+    crawler = PolicyCrawler()
+    result = crawler.crawl_offline_sample(args.source) if args.offline_sample else crawler.crawl_public_source(args.source, limit=args.limit)
     print(json.dumps(result.__dict__, ensure_ascii=False, indent=2))
-    return 0 if result.status == "completed" else 1
+    return 0 if result.status in {"completed", "partial"} else 1
 
 
 if __name__ == "__main__":

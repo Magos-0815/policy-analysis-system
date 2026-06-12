@@ -68,11 +68,14 @@ cd "/Users/alex/Documents/china policy analyse"
 python3 -m venv .venv
 .venv/bin/pip install -e .
 .venv/bin/python scripts/validate_project.py
-.venv/bin/python scripts/crawl_once.py --source gov_cn_policy --offline-sample
+.venv/bin/python scripts/crawl_once.py --source mof_policy --limit 5
+.venv/bin/python scripts/extract_observations.py
+.venv/bin/python scripts/build_ssi_index.py
+.venv/bin/python scripts/fetch_oecd_benchmark.py
 .venv/bin/python scripts/build_index.py
 ```
 
-当前脚手架可以运行离线政策样例和辅助 `policy_signal` 快照，但这只是工程底座验证，不代表 V1 指数已经验收。
+真实管线会把公开政策文档写入 `workspace/documents/`、正文写入 `workspace/text/`，再生成 PDF 口径的 `SupportObservation`。如果政策正文只有额度上限、没有总支持金额，或缺少行业归一化基数，系统只会输出 `missing` gap，不会把文本热度或额度上限伪造成 SSI 金额。
 
 ## Calculation Engine
 
@@ -86,6 +89,14 @@ python3 -m venv .venv
 
 ```bash
 .venv/bin/python scripts/build_ssi_index.py --sample
+```
+
+`--sample` 只用于公式 golden test 和本地 smoke，不是 V1 交付数据源。真实 SSI 构建应先运行：
+
+```bash
+.venv/bin/python scripts/crawl_once.py --source mof_policy --limit 5
+.venv/bin/python scripts/extract_observations.py
+.venv/bin/python scripts/build_ssi_index.py
 ```
 
 输出：

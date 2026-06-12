@@ -133,9 +133,12 @@ sources:
     tier: P1
     source_category: international_benchmark
     base_url: https://www.oecd.org/en/data.html
+    api:
+      rdtax_berd_csv: https://sdmx.oecd.org/public/rest/data/OECD.STI.STP,DSD_RDTAX@DF_RDTAX/.A..PT_B1GQ..?startPeriod=2020&dimensionAtObservation=AllDimensions&format=csvfilewithlabels
     allowed_domains:
       - www.oecd.org
       - data-explorer.oecd.org
+      - sdmx.oecd.org
     refresh_cadence: monthly
     parser: api_or_download
     access_policy: public_or_authorized_api_only

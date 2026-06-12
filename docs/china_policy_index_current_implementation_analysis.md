@@ -8,29 +8,29 @@
 
 - 独立 Python `.venv`、配置目录、workspace 和 exports。
 - P0 官方政策源配置。
-- 离线政策抓取样例、基础分类器、辅助 `policy_signal` 快照。
+- 真实公开网页 crawler、基础分类器、辅助 `policy_signal` 快照。
 - `runtime_guard`、`validate_project.py`、基础 pytest。
 - 从原 PDF 分析迁移过来的项目文档。
 
-但当前实现还没有达到 PDF 的指数算法口径。现有 `PolicySignalCalculator` 只是政策文本热度和可量化线索评分：
+当前实现已经不再停留在 `PolicySignalCalculator`。正式 SSI 计算底座、真实 `SupportObservation` 抽取管线、OECD benchmark 公开 API 入口已经落地。`PolicySignalCalculator` 仍存在，但只作为政策文本热度和可量化线索评分：
 
 ```text
 score = issuer_weight * channel_weight * quantifiability_weight * evidence_quality
 ```
 
-这不能作为 V1 验收指数。V1 必须直接实现 PDF 一致的 `State Support Intensity Index`：按支持渠道形成可审计 observation，归一化到行业基数，做权重聚合、双重计算控制、不确定性和外部 benchmark。
+这不能作为 V1 验收指数，也不会进入 SSI 金额聚合。V1 核心现在由 `StateSupportIntensityCalculator` 和 `SupportObservation` 驱动：按支持渠道形成可审计 observation，归一化到行业基数，做权重聚合、双重计算控制、缺口披露和外部 benchmark。
 
 ## 2. PDF 口径 vs 当前实现
 
 | 维度 | PDF 口径 | 当前状态 | V1 要求 |
 |---|---|---|---|
-| 指数目标 | State Support Intensity / China State Support Index | 只有辅助 Policy Signal | 直接实现 SSI，Policy Signal 只做辅助 |
-| 支持渠道 | 九类金额或代理金额渠道 | 配置里渠道较粗，且多为政策关键词 | 扩展为 PDF 九类渠道 |
-| 数据输入 | 支持金额、基数、证据质量、覆盖率 | 政策文档和分类结果 | 新增 SupportObservation |
-| 归一化 | 行业 GDP、产值、营收、资产、产能等 | 未实现 | 每条 observation 必须绑定 normalization_base |
-| 双重计算 | R&D、BERD、税收、土地、基金要去重 | 未实现 | 引擎和测试必须覆盖 |
-| 不确定性 | low/base/high、Monte Carlo 或敏感性 | 未实现 | V1 至少输出区间和 sensitivity |
-| Benchmark | CSIS/IMF/OECD/WTO 对照 | 未实现 | V1 输出 methodology warning |
+| 指数目标 | State Support Intensity / China State Support Index | SSI 引擎已实现，Policy Signal 仅辅助 | 继续补真实数据覆盖 |
+| 支持渠道 | 九类金额或代理金额渠道 | 已配置 PDF 九类渠道 | 每类渠道都要产出 observed/proxy/estimated/missing |
+| 数据输入 | 支持金额、基数、证据质量、覆盖率 | `SupportObservation` 已实现 | 扩大真实源 adapter 覆盖 |
+| 归一化 | 行业 GDP、产值、营收、资产、产能等 | `normalization_bases.yaml` 已接入，默认空缺 | 接入官方或授权基数，不得伪造 |
+| 双重计算 | R&D、BERD、税收、土地、基金要去重 | 引擎和测试已覆盖核心规则 | 扩展交易级土地/基金去重 |
+| 不确定性 | low/base/high、Monte Carlo 或敏感性 | sensitivity runs 已实现 | low/base/high 区间仍需补 |
+| Benchmark | CSIS/IMF/OECD/WTO 对照 | OECD RDTAX/BERD API 已接入 benchmark 文件 | CSIS/IMF/WTO 对照仍需补 |
 
 ## 3. 进展状态
 
@@ -38,20 +38,23 @@ score = issuer_weight * channel_weight * quantifiability_weight * evidence_quali
 
 - 新项目目录和基础 Python 包。
 - 官方政策源注册表雏形。
-- 离线 HTML 样例抓取和文档存储。
+- 真实公开 HTML 抓取、文档 raw/text/metadata 存储和 content hash。
 - 规则分类行业、支持渠道、可量化程度。
 - 辅助 `policy_signal` 快照导出。
 - 项目边界检查，避免写入金融项目。
 - OpenFisca country package `openfisca_china_policy_index`，用于正式 SSI 公式计算。
 - `policy_index/ssi_engine`，用于 Pydantic/Pointblank 校验、Polars 聚合、DuckDB 存储和 SSI 快照导出。
 - Camel-AI 审查 envelope，作为 audit-only 层，不允许修改指数数值。
+- `policy_index/observation_extractor.py`，从真实政策正文和分类结果抽取金额型 `SupportObservation`。
+- `policy_index/oecd_benchmark.py`，通过 OECD SDMX CSV 公开 API 拉取中国 R&D tax support / BERD benchmark。
+- 空 observation 状态可稳定导出 snapshot，并明确 `missing_required_channels` / `no_observations` warning。
 
 ### 需要纠偏
 
-- README 和旧文档把“先做 Policy Signal”写成阶段目标，已不符合当前验收口径。
-- `support_channels.yaml` 仍是政策工具分类，不是 PDF 的完整 SSI 渠道表。
-- `scoring_weights.yaml` 是政策信号权重，不是 SSI 的 channel/industry 权重。
-- `tests/test_policy_signal.py` 只能验证辅助信号，不能验证 PDF 指数算法。
+- 公开部委站点在当前机器上出现 TLS EOF / empty reply，真实 crawler 代码已就绪，但本机网络 smoke 暂未抓到 MOF/NDRC/PBC 文档。
+- LandChina 首页可连通，但当前 generic parser 未发现详情链接，需要补 LandChina 专用列表解析。
+- `normalization_bases.yaml` 默认仍为空，缺行业归一化基数时只能输出 gap，不能产生 SSI 值。
+- 未授权 Wind、CSMAR、Zero2IPO 等源仍只能保留 adapter slot 和 gap。
 
 ### V1 不可用 Policy Signal 替代的内容
 
@@ -66,15 +69,32 @@ score = issuer_weight * channel_weight * quantifiability_weight * evidence_quali
 
 ## 4. 实现方向
 
-V1 应按以下顺序推进：
+V1 后续应按以下顺序推进：
 
 1. 文档和配置口径统一到 PDF 算法合同。
-2. 新增 `SupportObservation` schema 和 observation store。
-3. 按九类渠道实现数据接入或 gap 标记。
-4. 实现 `StateSupportIntensityCalculator`。
-5. 实现双重计算控制和缺失数据策略。
-6. 实现 API/export 和方法版本追踪。
-7. 用 golden fixtures 验证公式、去重、缺口、敏感性和导出 schema。
+2. 为 MOF/税务/PBOC/LandChina 增加站点专用 parser 和重试/镜像策略。
+3. 接入可授权的财政、税务、上市公司、土地成交、基金和融资数据。
+4. 填充真实 normalization base 配置。
+5. 增加 low/base/high 区间和更完整 benchmark 对照。
+6. 继续用 golden fixtures 验证公式、去重、缺口、敏感性和导出 schema。
+
+## 4.1 2026-06-12 真实 smoke 结果
+
+已在本项目目录运行：
+
+```bash
+.venv/bin/python scripts/validate_project.py
+.venv/bin/python scripts/fetch_oecd_benchmark.py
+.venv/bin/python scripts/extract_observations.py
+.venv/bin/python scripts/build_ssi_index.py
+```
+
+结果：
+
+- 隔离校验通过，workspace/export 均位于 `/Users/alex/Documents/china policy analyse`。
+- OECD 公开 API 成功写入 `workspace/observations/oecd_rdtax_berd_china.json`，包含 7 条观测 benchmark 和 1 条 OECD 缺失状态。
+- MOF、NDRC、PBC 在本机 `httpx`/`curl` 下均返回 TLS EOF；HTTP 明文入口返回 empty reply。
+- 当前无公开政策文档入库时，`exports/latest/state_support_index_snapshot.json` 能稳定输出空 SSI 快照、九类渠道缺失列表和 `no_observations` warning。
 
 ## 5. 数据源入口
 
@@ -95,7 +115,7 @@ Wind、CSMAR、Zero2IPO 等授权源在未配置凭据前只能记录 adapter sl
 
 ## 6. 验收判断
 
-当前项目状态是“工程骨架可运行，PDF 指数算法未实现”。下一次可验收交付必须至少包含：
+当前项目状态是“PDF 一致计算引擎和真实数据管线已落地，但真实中国政策源抓取受本机网络/TLS 和站点专用 parser 限制，尚未形成可发布 SSI 数值”。下一次可验收交付必须至少包含：
 
 - 文档一致：所有项目文档不再把 Policy Signal 写成首版核心指数。
 - 算法一致：代码输出的 SSI 能用 PDF 公式手算复核。

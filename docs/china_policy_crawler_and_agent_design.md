@@ -160,3 +160,19 @@ flowchart TD
 - Agent 审查输出结构化 JSON，并可回链到文档和 observation。
 - 任一 Agent 审查失败时，指数快照必须带 warning 或阻断发布。
 - 当前金融项目只读消费，不参与爬取、解析、Agent 执行或指数计算。
+
+## 9. 当前实现状态
+
+截至 2026-06-12，已真实实现：
+
+- `PolicyCrawler.crawl_public_source()`：从公开 HTML 列表发现详情页，保存 raw HTML、正文 text、metadata 和 content hash。
+- `scripts/crawl_once.py`：默认执行真实公开源抓取，`--offline-sample` 只保留为开发 smoke。
+- `SupportObservationExtractor`：从已抓取政策正文、分类结果和 `normalization_bases.yaml` 生成 `SupportObservation`；缺总金额或缺归一化基数时输出 `missing`。
+- `OecdRDTaxBenchmarkClient`：通过 OECD SDMX CSV API 拉取中国 R&D tax support / government-financed BERD benchmark，存入 `workspace/observations/oecd_rdtax_berd_china.json`，不直接加入 SSI。
+- `tests/test_real_pipeline.py`：覆盖公开 HTML 入库、金额抽取、缺基数 gap、额度上限不入 SSI、OECD benchmark 隔离。
+
+当前未完成：
+
+- MOF、NDRC、PBC 在本机联网 smoke 中返回 TLS EOF，需要网络环境修复、代理策略或站点专用抓取策略。
+- LandChina 需要专用列表/交易页 parser。
+- 交易所公告、Wind/CSMAR/Zero2IPO 等授权源 adapter 尚未接入。

@@ -26,3 +26,7 @@ def load_support_channels() -> dict[str, Any]:
 
 def load_scoring_weights() -> dict[str, Any]:
     return load_yaml(CONFIG_DIR / "scoring_weights.yaml")
+
+
+def load_normalization_bases() -> dict[str, Any]:
+    return load_yaml(CONFIG_DIR / "normalization_bases.yaml")

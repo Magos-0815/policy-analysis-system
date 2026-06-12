@@ -1,0 +1,6 @@
+version: 0.1
+description: >
+  Real State Support Intensity calculations require externally sourced industry
+  normalization bases. Keep this file empty until a value is traceable to an
+  official or licensed source. Missing bases produce explicit gap observations.
+bases: {}

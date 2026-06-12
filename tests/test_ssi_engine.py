@@ -86,6 +86,21 @@ def test_missing_observation_is_gap_not_amount():
     assert snapshot["benchmark_warnings"][0]["code"] == "missing_required_channels"
 
 
+def test_empty_observation_snapshot_is_exportable_warning_state():
+    snapshot = StateSupportIntensityCalculator().build_snapshot([], persist=True)
+
+    assert snapshot["industry_values"] == []
+    assert snapshot["china_values"] == []
+    assert snapshot["coverage"]["total_observations"] == 0
+    assert snapshot["methodology"]["quality_gate"]["reason"] == "no_observations"
+    assert {warning["code"] for warning in snapshot["benchmark_warnings"]} == {
+        "missing_required_channels",
+        "no_observations",
+    }
+    with duckdb.connect(str(WORKSPACE_DIR / "index" / "ssi_engine.duckdb")) as con:
+        assert con.execute("select count(*) from ssi_industry_values").fetchone()[0] == 0
+
+
 def test_sensitivity_runs_and_policy_signal_separation():
     snapshot = StateSupportIntensityCalculator().build_snapshot([observation()], persist=False)
 

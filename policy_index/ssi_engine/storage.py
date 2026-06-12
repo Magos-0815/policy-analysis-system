@@ -13,6 +13,39 @@ from .models import SupportObservation
 from .validation import observations_to_frame
 
 
+SNAPSHOT_TABLE_COLUMNS = {
+    "ssi_observation_results": [
+        "observation_id",
+        "channel",
+        "industry",
+        "period",
+        "gap_status",
+        "observed_amount",
+        "normalization_base",
+        "directness_score",
+        "coverage_score",
+        "confidence_score",
+        "channel_weight",
+        "evidence_adjusted_amount",
+        "support_intensity",
+        "channel_weighted_intensity",
+        "source_document_ids",
+        "method_version",
+    ],
+    "ssi_industry_values": ["industry", "period", "value", "observation_count", "channel_count"],
+    "ssi_china_values": ["period", "value", "covered_industry_weight", "industry_count"],
+    "ssi_channel_breakdowns": [
+        "industry",
+        "period",
+        "channel",
+        "evidence_adjusted_amount",
+        "support_intensity",
+        "value",
+        "observation_count",
+    ],
+}
+
+
 class SSIStorage:
     def __init__(self) -> None:
         ensure_runtime_dirs()
@@ -66,7 +99,7 @@ class SSIStorage:
                 "ssi_china_values": snapshot.get("china_values", []),
                 "ssi_channel_breakdowns": snapshot.get("channel_breakdowns", []),
             }.items():
-                frame = pl.DataFrame(rows) if rows else pl.DataFrame()
+                frame = pl.DataFrame(rows) if rows else pl.DataFrame({column: [] for column in SNAPSHOT_TABLE_COLUMNS[table_name]})
                 con.register(f"{table_name}_df", frame)
                 con.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}_df")
 

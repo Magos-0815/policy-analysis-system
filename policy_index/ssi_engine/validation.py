@@ -54,6 +54,17 @@ def observations_to_frame(observations: list[SupportObservation]) -> pl.DataFram
 
 
 def run_pointblank_quality_gate(frame: pl.DataFrame) -> dict[str, Any]:
+    if frame.height == 0:
+        missing_columns = [column for column in REQUIRED_COLUMNS if column not in frame.columns]
+        if missing_columns:
+            raise ValueError(f"SupportObservation frame missing required columns: {missing_columns}")
+        return {
+            "status": "skipped",
+            "reason": "no_observations",
+            "row_count": 0,
+            "required_columns": REQUIRED_COLUMNS,
+        }
+
     validation = (
         pb.Validate(frame, tbl_name="support_observations", label="SSI SupportObservation quality gate")
         .col_exists(REQUIRED_COLUMNS)
